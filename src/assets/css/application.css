@@ -1,0 +1,58 @@
+div{
+    -webkit-touch-callout: none;
+    -o-user-select: none;
+    -moz-user-select: none;  
+    -moz-user-select: -moz-none;  
+    -webkit-user-select: none;  
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+  }
+  html,body {
+    -webkit-touch-callout: none;
+    -o-user-select: none;
+    -moz-user-select: none;  
+    -moz-user-select: -moz-none;  
+    -webkit-user-select: none;  
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+    cursor:default;
+    font-family: sans-serif;
+    margin: 0px;
+    padding: 0px;
+    padding-bottom: 70px;
+    color: #000;
+    background-color: #FFF;
+    font-size: 0.9em;
+    height:100%;
+    width:100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+  .content {
+      position:absolute;
+      bottom:0px;
+      top:0px;
+      left:0px;
+      right:0px;
+      border:0px solid black;
+      overflow:hidden;
+  }
+  .plot{
+      -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+      -moz-user-select: none; /* mozilla browsers */
+      -khtml-user-select: none; /* webkit (konqueror) browsers */
+      -ms-user-select: none; /* IE10+ */
+      border:0px solid #000000;
+  }
+  .plothost {
+      position:absolute;
+      bottom:0px;
+      top: 0px;
+      left:0;
+      right:0;
+      border:0 solid black;
+      overflow: hidden;
+  }
+  

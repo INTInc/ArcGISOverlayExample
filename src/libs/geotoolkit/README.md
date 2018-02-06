@@ -1,0 +1,1 @@
+1) Copy all files from GeoToolkit.JS/bin folder

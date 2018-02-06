@@ -9,6 +9,11 @@
 # dependencies
 /node_modules
 
+# GeoToolkit.JS library
+/src/libs/geotoolkit/*.js
+/src/libs/geotoolkit/headers
+/src/libs/geotoolkit/schema
+
 # IDEs and editors
 /.idea
 .project

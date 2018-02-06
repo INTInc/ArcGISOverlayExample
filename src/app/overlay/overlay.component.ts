@@ -42,7 +42,8 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   private createWidget(): geotoolkit.map.Map {
     let map = new geotoolkit.map.Map({});
     map.addLayer(this.createWMTSLayer());
-    map.addLayer(this.createArcGISFeatureLayer());
+    map.addLayer(this.createCountiesLayer());
+    map.addLayer(this.createStatesLayer());
     map.setMapScale(1 / 200000)
       .panTo(new geotoolkit.util.Point(-100, 40), geotoolkit.map.GeodeticSystem.LatLon);
     return map;
@@ -56,14 +57,24 @@ export class OverlayComponent implements OnInit, AfterViewInit {
         return z + '/' + y + '/' + x + '.png';
       }
     });
-  }
-  private createArcGISFeatureLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
+  }  
+  private createStatesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
     return new geotoolkit.map.layers.ArcGISFeatureLayer({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
-      'idfield': 'NAME',
-      'server': 'http://services.arcgis.com/qEmpZrqTBf5yoq5n/ArcGIS/rest/services/lakes_and_rivers/FeatureServer/0'
+      'idfield': 'state_name',
+      'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
   };
+  private createCountiesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
+    let layer = new geotoolkit.map.layers.ArcGISFeatureLayer({
+      'system': geotoolkit.map.GeodeticSystem.LatLon,
+      'idfield': null,
+      'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
+    });
+    layer.setCache(new geotoolkit.scene.TiledCache());
+    return layer;
+  };
+  
   private resize(event) {
     if (this.plot) {
       this.plot.setSize(this.parent.nativeElement.clientWidth, this.parent.nativeElement.clientHeight);

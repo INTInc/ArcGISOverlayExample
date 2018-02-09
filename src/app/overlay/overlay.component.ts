@@ -34,17 +34,15 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'colors': ['red', 'white'],
       'values': [0, 1]
     });
-    // (1) - Countries with population:
     const itPopulatedCountries = this.countiesLayer.getFeatures();
+    const fieldName = 'pop2000';
     const arPopulatedCountries = geotoolkit.util.Iterator.toArray(itPopulatedCountries, undefined);
     arPopulatedCountries.sort(function (c1, c2) { // Descending
-      const p1 = c1.getAttributes()['pop2000'];
-      const p2 = c2.getAttributes()['pop2000'];
+      const p1 = c1.getAttributes()[fieldName];
+      const p2 = c2.getAttributes()[fieldName];
       return ((p1 === p2) ? 0 : ((p1 < p2) ? 1 : -1));
     });
-
-    // Fill most populated countries with colors from "red" to "white":
-    const nMostPopulated = 10;
+    const geometryToPolygon = new geotoolkit.map.features.GeometryToPolygon();
     for (let iCountry = 0; iCountry < arPopulatedCountries.length; ++iCountry) {
       const country = arPopulatedCountries[iCountry];
       if (country != null) {
@@ -55,7 +53,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
             'linestyle': new geotoolkit.attributes.LineStyle('white'),
             'fillstyle': { 'color': color }
           }),
-          'geometrytoshape': new geotoolkit.map.features.GeometryToPolygon()
+          'geometrytoshape': geometryToPolygon
         });
         this.countiesLayer.setTemplate(country, template);
       }

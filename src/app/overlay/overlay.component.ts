@@ -10,7 +10,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   @ViewChild('parent') parent: ElementRef;
   private plot: geotoolkit.plot.Plot;
   private widget: geotoolkit.map.Map;
-
+  private countiesLayer: geotoolkit.map.layers.ArcGISFeatureLayer;
   constructor() { }
 
   ngOnInit() {
@@ -23,8 +23,47 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   onResize(event) {
     this.resize(event);
   }
+  public zoomIn() {
+    this.widget.zoomIn();
+  }
+  public zoomOut() {
+    this.widget.zoomOut();
+  }
+  public classify() {
+    const queryColorProvider = new geotoolkit.util.DefaultColorProvider({
+      'colors': ['red', 'white'],
+      'values': [0, 1]
+    });
+    // (1) - Countries with population:
+    const itPopulatedCountries = this.countiesLayer.getFeatures();
+    const arPopulatedCountries = geotoolkit.util.Iterator.toArray(itPopulatedCountries, undefined);
+    arPopulatedCountries.sort(function (c1, c2) { // Descending
+      const p1 = c1.getAttributes()['pop2000'];
+      const p2 = c2.getAttributes()['pop2000'];
+      return ((p1 === p2) ? 0 : ((p1 < p2) ? 1 : -1));
+    });
+
+    // Fill most populated countries with colors from "red" to "white":
+    const nMostPopulated = 10;
+    for (let iCountry = 0; iCountry < arPopulatedCountries.length; ++iCountry) {
+      const country = arPopulatedCountries[iCountry];
+      if (country != null) {
+        const color = queryColorProvider.getColor(iCountry / (arPopulatedCountries.length - 1));
+        const template = new geotoolkit.map.templates.PolygonTemplate();
+        template.setOptions({
+          'shape': new geotoolkit.scene.shapes.Polygon({
+            'linestyle': new geotoolkit.attributes.LineStyle('white'),
+            'fillstyle': { 'color': color }
+          }),
+          'geometrytoshape': new geotoolkit.map.features.GeometryToPolygon()
+        });
+        this.countiesLayer.setTemplate(country, template);
+      }
+    }
+    this.countiesLayer.invalidate();
+  }
   private initPlot() {
-    let widget = this.createWidget();
+    const widget = this.createWidget();
     widget.setLayoutStyle({ 'left': 0, 'right': 0, 'top': 0, 'bottom': 0 });
     this.plot = new geotoolkit.plot.Plot({
       'canvasElement': this.canvas.nativeElement,
@@ -34,13 +73,13 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'autoUpdate': true
     });
     // init tools container to support interactions with widget
-    var toolContainer = new geotoolkit.controls.tools.ToolsContainer(this.plot);
+    const toolContainer = new geotoolkit.controls.tools.ToolsContainer(this.plot);
     toolContainer.add(widget.getTool());
     widget.invalidate();
     this.widget = widget;
   }
   private createWidget(): geotoolkit.map.Map {
-    let map = new geotoolkit.map.Map({});
+    const map = new geotoolkit.map.Map({});
     map.addLayer(this.createWMTSLayer());
     map.addLayer(this.createCountiesLayer());
     map.addLayer(this.createStatesLayer());
@@ -57,24 +96,29 @@ export class OverlayComponent implements OnInit, AfterViewInit {
         return z + '/' + y + '/' + x + '.png';
       }
     });
-  }  
+  }
   private createStatesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
     return new geotoolkit.map.layers.ArcGISFeatureLayer({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
       'idfield': 'state_name',
+      'converters': [new geotoolkit.map.features.converters.DefaultFeatureConverter(),
+      new geotoolkit.map.features.converters.RDPFeatureConverter()],
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
-  };
+  }
   private createCountiesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
-    let layer = new geotoolkit.map.layers.ArcGISFeatureLayer({
+    const layer = new geotoolkit.map.layers.ArcGISFeatureLayer({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
       'idfield': null,
+      'converters': [
+        new geotoolkit.map.features.converters.DefaultFeatureConverter(),
+        new geotoolkit.map.features.converters.RDPFeatureConverter()],
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
-    layer.setCache(new geotoolkit.scene.TiledCache());
+    this.countiesLayer = layer;
+    // layer.setCache(new geotoolkit.scene.ViewCache());
     return layer;
-  };
-  
+  }
   private resize(event) {
     if (this.plot) {
       this.plot.setSize(this.parent.nativeElement.clientWidth, this.parent.nativeElement.clientHeight);

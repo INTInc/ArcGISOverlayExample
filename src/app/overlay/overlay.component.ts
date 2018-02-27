@@ -41,7 +41,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       const p1 = c1.getAttributes()[fieldName];
       const p2 = c2.getAttributes()[fieldName];
       return ((p1 === p2) ? 0 : ((p1 < p2) ? 1 : -1));
-    });
+    });    
     const geometryToPolygon = new geotoolkit.map.features.GeometryToPolygon();
     for (let iCountry = 0; iCountry < arPopulatedCountries.length; ++iCountry) {
       const country = arPopulatedCountries[iCountry];
@@ -114,7 +114,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
     this.countiesLayer = layer;
-    // layer.setCache(new geotoolkit.scene.ViewCache());
+    layer.setCache(new geotoolkit.scene.ViewCache({'async': true}));
     return layer;
   }
   private resize(event) {

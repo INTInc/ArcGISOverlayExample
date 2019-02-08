@@ -1,0 +1,11 @@
+{
+  "name": "geotoolkit",
+  "version": "2.6.42",
+  "description": "GeoToolkit is a comprehensive set of high-performance 2D/3D tools and libraries.",
+  "main": "geotoolkit.adv.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "support@int.com",
+  "license": "Licensed"
+}

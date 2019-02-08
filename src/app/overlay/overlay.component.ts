@@ -10,7 +10,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   @ViewChild('parent') parent: ElementRef;
   private plot: geotoolkit.plot.Plot;
   private widget: geotoolkit.map.Map;
-  private countiesLayer: geotoolkit.map.layers.ArcGISFeatureLayer;
+  private countiesLayer: geotoolkit.map.layers.ArcGISFeature;
   constructor() { }
 
   ngOnInit() {
@@ -47,7 +47,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       const country = arPopulatedCountries[iCountry];
       if (country != null) {
         const color = queryColorProvider.getColor(iCountry / (arPopulatedCountries.length - 1));
-        const template = new geotoolkit.map.templates.PolygonTemplate();
+        const template = new geotoolkit.map.features.templates.Polygon();
         template.setOptions({
           'shape': new geotoolkit.scene.shapes.Polygon({
             'linestyle': new geotoolkit.attributes.LineStyle('white'),
@@ -85,8 +85,8 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       .panTo(new geotoolkit.util.Point(-100, 40), geotoolkit.map.GeodeticSystem.LatLon);
     return map;
   }
-  private createWMTSLayer(): geotoolkit.map.layers.WMTSLayer {
-    return new geotoolkit.map.layers.WMTSLayer({
+  private createWMTSLayer(): geotoolkit.map.layers.Tile {
+    return new geotoolkit.map.layers.Tile({
       'server': ['https://demo.int.com/osm_tiles/'],
       'minlod': 0,
       'maxlod': 19,
@@ -95,8 +95,8 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  private createStatesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
-    return new geotoolkit.map.layers.ArcGISFeatureLayer({
+  private createStatesLayer(): geotoolkit.map.layers.ArcGISFeature {
+    return new geotoolkit.map.layers.ArcGISFeature({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
       'idfield': 'state_name',
       'converters': [new geotoolkit.map.features.converters.DefaultFeatureConverter(),
@@ -104,8 +104,8 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
   }
-  private createCountiesLayer(): geotoolkit.map.layers.ArcGISFeatureLayer {
-    const layer = new geotoolkit.map.layers.ArcGISFeatureLayer({
+  private createCountiesLayer(): geotoolkit.map.layers.ArcGISFeature {
+    const layer = new geotoolkit.map.layers.ArcGISFeature({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
       'idfield': null,
       'converters': [

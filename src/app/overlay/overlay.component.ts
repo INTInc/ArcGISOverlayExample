@@ -10,7 +10,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   @ViewChild('parent') parent: ElementRef;
   private plot: geotoolkit.plot.Plot;
   private widget: geotoolkit.map.Map;
-  private countiesLayer: geotoolkit.map.layers.ArcGISFeature;
+  private countriesLayer: geotoolkit.map.layers.ArcGISFeature;
   constructor() { }
 
   ngOnInit() {
@@ -34,14 +34,14 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'colors': ['red', 'white'],
       'values': [0, 1]
     });
-    const itPopulatedCountries = this.countiesLayer.getFeatures();
+    const itPopulatedCountries = this.countriesLayer.getFeatures();
     const fieldName = 'pop2000';
     const arPopulatedCountries = geotoolkit.util.Iterator.toArray(itPopulatedCountries, undefined);
     arPopulatedCountries.sort(function (c1, c2) { // Descending
       const p1 = c1.getAttributes()[fieldName];
       const p2 = c2.getAttributes()[fieldName];
       return ((p1 === p2) ? 0 : ((p1 < p2) ? 1 : -1));
-    });    
+    });
     const geometryToPolygon = new geotoolkit.map.features.GeometryToPolygon();
     for (let iCountry = 0; iCountry < arPopulatedCountries.length; ++iCountry) {
       const country = arPopulatedCountries[iCountry];
@@ -55,10 +55,10 @@ export class OverlayComponent implements OnInit, AfterViewInit {
           }),
           'geometrytoshape': geometryToPolygon
         });
-        this.countiesLayer.setTemplate(country, template);
+        this.countriesLayer.setTemplate(country, template);
       }
     }
-    this.countiesLayer.invalidate();
+    this.countriesLayer.invalidate();
   }
   private initPlot() {
     const widget = this.createWidget();
@@ -79,7 +79,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   private createWidget(): geotoolkit.map.Map {
     const map = new geotoolkit.map.Map({});
     map.addLayer(this.createWMTSLayer());
-    map.addLayer(this.createCountiesLayer());
+    map.addLayer(this.createcountriesLayer());
     map.addLayer(this.createStatesLayer());
     map.setMapScale(1 / 200000)
       .panTo(new geotoolkit.util.Point(-100, 40), geotoolkit.map.GeodeticSystem.LatLon);
@@ -104,7 +104,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
   }
-  private createCountiesLayer(): geotoolkit.map.layers.ArcGISFeature {
+  private createcountriesLayer(): geotoolkit.map.layers.ArcGISFeature {
     const layer = new geotoolkit.map.layers.ArcGISFeature({
       'system': geotoolkit.map.GeodeticSystem.LatLon,
       'idfield': null,
@@ -113,7 +113,7 @@ export class OverlayComponent implements OnInit, AfterViewInit {
         new geotoolkit.map.features.converters.RDPFeatureConverter()],
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
-    this.countiesLayer = layer;
+    this.countriesLayer = layer;
     layer.setCache(new geotoolkit.scene.ViewCache({'async': true}));
     return layer;
   }

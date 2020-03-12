@@ -6,8 +6,8 @@ import { Component, AfterViewInit, ViewChild, ElementRef, HostListener, OnInit }
   styleUrls: ['./overlay.component.css']
 })
 export class OverlayComponent implements OnInit, AfterViewInit {
-  @ViewChild('map') canvas: ElementRef;
-  @ViewChild('parent') parent: ElementRef;
+  @ViewChild('map', { static: true }) canvas: ElementRef;
+  @ViewChild('parent', { static: true }) parent: ElementRef;
   private plot: geotoolkit.plot.Plot;
   private widget: geotoolkit.map.Map;
   private countriesLayer: geotoolkit.map.layers.ArcGISFeature;

@@ -6,7 +6,7 @@ import { OverlayComponent } from './overlay/overlay.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  @ViewChild(OverlayComponent) map: OverlayComponent;
+  @ViewChild(OverlayComponent, { static: true }) map: OverlayComponent;
   title = 'app';
   public zoomIn() {
     this.map.zoomIn();

@@ -24,12 +24,14 @@ import { RgbaColor } from '@int/geotoolkit/util/RgbaColor';
   templateUrl: './overlay.component.html',
   styleUrls: ['./overlay.component.css']
 })
+
 export class OverlayComponent implements OnInit, AfterViewInit {
   @ViewChild('map', { static: true }) canvas: ElementRef;
   @ViewChild('parent', { static: true }) parent: ElementRef;
   private plot: Plot;
   private widget: Map;
   private countriesLayer: ArcGISFeature;
+
   constructor() { }
 
   ngOnInit() {
@@ -49,9 +51,6 @@ export class OverlayComponent implements OnInit, AfterViewInit {
     this.widget.zoomOut();
   }
   public classify() {
-    const colors: RgbaColor = new RgbaColor();
-    colors.setColor('red');
-    colors.setColor('white');
     const queryColorProvider = new DefaultColorProvider([0, 1], [new RgbaColor(255, 0, 0, 1), new RgbaColor(255, 255, 255, 1)]);
     const itPopulatedCountries = this.countriesLayer.getFeatures();
     const fieldName = 'pop2000';

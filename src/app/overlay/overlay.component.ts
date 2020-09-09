@@ -1,20 +1,35 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Plot } from '@int/geotoolkit/plot/Plot';
+import { Map } from '@int/geotoolkit/map/Map';
+import { ArcGISFeature } from '@int/geotoolkit/map/layers/ArcGISFeature';
+import { DefaultColorProvider } from '@int/geotoolkit/util/DefaultColorProvider';
+import { Iterator } from '@int/geotoolkit/util/iterator';
+import { Polygon } from '@int/geotoolkit/map/features/adapters/Polygon';
+import { Polygon as PolygonTemplate } from '@int/geotoolkit/map/features/templates/Polygon';
+import { Polygon as PolygonShape } from '@int/geotoolkit/scene/shapes/Polygon';
+import { LineStyle } from '@int/geotoolkit/attributes/LineStyle';
+import { Group } from '@int/geotoolkit/scene/Group';
+import { CssLayout } from '@int/geotoolkit/layout/CssLayout';
+import { ToolsContainer } from '@int/geotoolkit/controls/tools/ToolsContainer';
+import { Point } from '@int/geotoolkit/util/Point';
+import { GeodeticSystem } from '@int/geotoolkit/map/GeodeticSystem';
+import { Tile } from '@int/geotoolkit/map/layers/Tile';
+import { BaseConverter } from '@int/geotoolkit/map/features/converters/BaseConverter';
+import { RDP } from '@int/geotoolkit/map/features/converters/RDP';
+import { ViewCache } from '@int/geotoolkit/scene/ViewCache';
+import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-overlay',
   templateUrl: './overlay.component.html',
   styleUrls: ['./overlay.component.css']
 })
-export class OverlayComponent implements OnInit, AfterViewInit {
+export class OverlayComponent implements AfterViewInit {
   @ViewChild('map', { static: true }) canvas: ElementRef;
   @ViewChild('parent', { static: true }) parent: ElementRef;
-  private plot: geotoolkit.plot.Plot;
-  private widget: geotoolkit.map.Map;
-  private countriesLayer: geotoolkit.map.layers.ArcGISFeature;
-  constructor() { }
+  private plot: Plot;
+  private widget: Map;
+  private countriesLayer: ArcGISFeature;
 
-  ngOnInit() {
-  }
   ngAfterViewInit() {
     this.initPlot();
     this.resize(null);
@@ -30,27 +45,27 @@ export class OverlayComponent implements OnInit, AfterViewInit {
     this.widget.zoomOut();
   }
   public classify() {
-    const queryColorProvider = new geotoolkit.util.DefaultColorProvider({
+    const queryColorProvider = new DefaultColorProvider({
       'colors': ['red', 'white'],
       'values': [0, 1]
     });
     const itPopulatedCountries = this.countriesLayer.getFeatures();
     const fieldName = 'pop2000';
-    const arPopulatedCountries = geotoolkit.util.Iterator.toArray(itPopulatedCountries, undefined);
+    const arPopulatedCountries = Iterator.toArray(itPopulatedCountries, undefined);
     arPopulatedCountries.sort(function (c1, c2) { // Descending
       const p1 = c1.getAttributes()[fieldName];
       const p2 = c2.getAttributes()[fieldName];
       return ((p1 === p2) ? 0 : ((p1 < p2) ? 1 : -1));
     });
-    const geometryToPolygon = new geotoolkit.map.features.GeometryToPolygon();
+    const geometryToPolygon = new Polygon();
     for (let iCountry = 0; iCountry < arPopulatedCountries.length; ++iCountry) {
       const country = arPopulatedCountries[iCountry];
       if (country != null) {
         const color = queryColorProvider.getColor(iCountry / (arPopulatedCountries.length - 1));
-        const template = new geotoolkit.map.features.templates.Polygon();
+        const template = new PolygonTemplate();
         template.setOptions({
-          'shape': new geotoolkit.scene.shapes.Polygon({
-            'linestyle': new geotoolkit.attributes.LineStyle('white'),
+          'shape': new PolygonShape({
+            'linestyle': new LineStyle('white'),
             'fillstyle': { 'color': color }
           }),
           'geometrytoshape': geometryToPolygon
@@ -63,30 +78,30 @@ export class OverlayComponent implements OnInit, AfterViewInit {
   private initPlot() {
     const widget = this.createWidget();
     widget.setLayoutStyle({ 'left': 0, 'right': 0, 'top': 0, 'bottom': 0 });
-    this.plot = new geotoolkit.plot.Plot({
+    this.plot = new Plot({
       'canvasElement': this.canvas.nativeElement,
-      'root': new geotoolkit.scene.Group({ 'children': [widget] })
+      'root': new Group({ 'children': [widget] })
         .setAutoModelLimitsMode(true)
-        .setLayout(new geotoolkit.layout.CssLayout()),
+        .setLayout(new CssLayout()),
       'autoUpdate': true
     });
     // init tools container to support interactions with widget
-    const toolContainer = new geotoolkit.controls.tools.ToolsContainer(this.plot);
+    const toolContainer = new ToolsContainer(this.plot);
     toolContainer.add(widget.getTool());
     widget.invalidate();
     this.widget = widget;
   }
-  private createWidget(): geotoolkit.map.Map {
-    const map = new geotoolkit.map.Map({});
+  private createWidget(): Map {
+    const map = new Map({});
     map.addLayer(this.createWMTSLayer());
     map.addLayer(this.createcountriesLayer());
     map.addLayer(this.createStatesLayer());
     map.setMapScale(1 / 200000)
-      .panTo(new geotoolkit.util.Point(-100, 40), geotoolkit.map.GeodeticSystem.LatLon);
+      .panTo(new Point(-100, 40), GeodeticSystem.LatLon);
     return map;
   }
-  private createWMTSLayer(): geotoolkit.map.layers.Tile {
-    return new geotoolkit.map.layers.Tile({
+  private createWMTSLayer(): Tile {
+    return new Tile({
       'server': ['https://demo.int.com/osm_tiles/'],
       'minlod': 0,
       'maxlod': 19,
@@ -95,26 +110,29 @@ export class OverlayComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  private createStatesLayer(): geotoolkit.map.layers.ArcGISFeature {
-    return new geotoolkit.map.layers.ArcGISFeature({
-      'system': geotoolkit.map.GeodeticSystem.LatLon,
+  private createStatesLayer(): ArcGISFeature {
+    return new ArcGISFeature({
+      'system': GeodeticSystem.LatLon,
       'idfield': 'state_name',
-      'converters': [new geotoolkit.map.features.converters.DefaultFeatureConverter(),
-      new geotoolkit.map.features.converters.RDPFeatureConverter()],
+      'converters': [
+        new BaseConverter(),
+        new RDP()
+      ],
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
   }
-  private createcountriesLayer(): geotoolkit.map.layers.ArcGISFeature {
-    const layer = new geotoolkit.map.layers.ArcGISFeature({
-      'system': geotoolkit.map.GeodeticSystem.LatLon,
+  private createcountriesLayer(): ArcGISFeature {
+    const layer = new ArcGISFeature({
+      'system': GeodeticSystem.LatLon,
       'idfield': null,
       'converters': [
-        new geotoolkit.map.features.converters.DefaultFeatureConverter(),
-        new geotoolkit.map.features.converters.RDPFeatureConverter()],
+        new BaseConverter(),
+        new RDP()
+      ],
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
     this.countriesLayer = layer;
-    layer.setCache(new geotoolkit.scene.ViewCache({'async': true}));
+    layer.setCache(new ViewCache({'async': true}));
     return layer;
   }
   private resize(event) {

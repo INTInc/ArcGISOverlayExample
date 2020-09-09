@@ -15,6 +15,6 @@ export class AppComponent {
     this.map.zoomOut();
   }
   public classify() {
-    this.map.classify(); 
+    this.map.classify();
   }
 }

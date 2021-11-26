@@ -63,7 +63,7 @@ export class OverlayComponent implements AfterViewInit {
       if (country != null) {
         const color = queryColorProvider.getColor(iCountry / (arPopulatedCountries.length - 1));
         const template = new PolygonTemplate();
-        template.setOptions({
+        template.setProperties({
           'shape': new PolygonShape({
             'linestyle': new LineStyle('white'),
             'fillstyle': { 'color': color }
@@ -132,7 +132,6 @@ export class OverlayComponent implements AfterViewInit {
       'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
     this.countriesLayer = layer;
-    layer.setCache(new ViewCache({'async': true}));
     return layer;
   }
   private resize(event) {

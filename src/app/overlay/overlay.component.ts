@@ -15,7 +15,6 @@ import { GeodeticSystem } from '@int/geotoolkit/map/GeodeticSystem';
 import { Tile } from '@int/geotoolkit/map/layers/Tile';
 import { BaseConverter } from '@int/geotoolkit/map/features/converters/BaseConverter';
 import { RDP } from '@int/geotoolkit/map/features/converters/RDP';
-import { ViewCache } from '@int/geotoolkit/scene/ViewCache';
 import { Component, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 
 @Component({
@@ -79,11 +78,11 @@ export class OverlayComponent implements AfterViewInit {
     const widget = this.createWidget();
     widget.setLayoutStyle({ 'left': 0, 'right': 0, 'top': 0, 'bottom': 0 });
     this.plot = new Plot({
-      'canvasElement': this.canvas.nativeElement,
+      'canvaselement': this.canvas.nativeElement,
       'root': new Group({ 'children': [widget] })
         .setAutoModelLimitsMode(true)
         .setLayout(new CssLayout()),
-      'autoUpdate': true
+      'autoupdate': true
     });
     // init tools container to support interactions with widget
     const toolContainer = new ToolsContainer(this.plot);
@@ -102,7 +101,7 @@ export class OverlayComponent implements AfterViewInit {
   }
   private createWMTSLayer(): Tile {
     return new Tile({
-      'server': ['https://demo.int.com/osm_tiles/'],
+      'url': 'https://demo.int.com/osm_tiles/',
       'minlod': 0,
       'maxlod': 19,
       'formatterfunction': function (z, x, y) {
@@ -118,7 +117,7 @@ export class OverlayComponent implements AfterViewInit {
         new BaseConverter(),
         new RDP()
       ],
-      'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
+      'url': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/2'
     });
   }
   private createcountriesLayer(): ArcGISFeature {
@@ -129,12 +128,12 @@ export class OverlayComponent implements AfterViewInit {
         new BaseConverter(),
         new RDP()
       ],
-      'server': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
+      'url': 'https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/3'
     });
     this.countriesLayer = layer;
     return layer;
   }
-  private resize(event) {
+  private resize(_event) {
     if (this.plot) {
       this.plot.setSize(this.parent.nativeElement.clientWidth, this.parent.nativeElement.clientHeight);
     }
